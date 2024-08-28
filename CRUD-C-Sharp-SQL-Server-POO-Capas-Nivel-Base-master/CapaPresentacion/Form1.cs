@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using CapaNegocio;
 
@@ -14,7 +8,7 @@ namespace CapaPresentacion
     public partial class Form1 : Form
     {
         CN_Productos objetoCN = new CN_Productos();
-        private string idProducto=null;
+        private string idProducto = null;
         private bool Editar = false;
 
         public Form1()
@@ -24,46 +18,48 @@ namespace CapaPresentacion
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            MostrarProdctos();
+            MostrarProductos();
         }
 
-        private void MostrarProdctos() {
-
-            CN_Productos objeto = new CN_Productos();
-            dataGridView1.DataSource = objeto.MostrarProd();
+        private void MostrarProductos()
+        {
+            try
+            {
+                dataGridView1.DataSource = objetoCN.MostrarProd();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("No se pudieron mostrar los productos: " + ex.Message);
+            }
         }
 
         private void btnGuardar_Click(object sender, EventArgs e)
         {
-            //INSERTAR
-            if (Editar == false)
+            if (string.IsNullOrEmpty(txtNombre.Text) || string.IsNullOrEmpty(txtPrecio.Text) || string.IsNullOrEmpty(txtStock.Text))
             {
-                try
-                {
-                    objetoCN.InsertarPRod(txtNombre.Text, txtDesc.Text, txtMarca.Text, txtPrecio.Text, txtStock.Text);
-                    MessageBox.Show("se inserto correctamente");
-                    MostrarProdctos();
-                    limpiarForm();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("no se pudo insertar los datos por: " + ex);
-                }
+                MessageBox.Show("Por favor, complete todos los campos.");
+                return;
             }
-            //EDITAR
-            if (Editar == true) {
 
-                try
+            try
+            {
+                if (Editar == false)
                 {
-                    objetoCN.EditarProd(txtNombre.Text, txtDesc.Text, txtMarca.Text, txtPrecio.Text, txtStock.Text,idProducto);
-                    MessageBox.Show("se edito correctamente");
-                    MostrarProdctos();
-                    limpiarForm();
+                    objetoCN.InsertarProd(txtNombre.Text, txtDesc.Text, txtMarca.Text, txtPrecio.Text, txtStock.Text);
+                    MessageBox.Show("Se insertó correctamente.");
+                }
+                else
+                {
+                    objetoCN.EditarProd(txtNombre.Text, txtDesc.Text, txtMarca.Text, txtPrecio.Text, txtStock.Text, idProducto);
+                    MessageBox.Show("Se editó correctamente.");
                     Editar = false;
                 }
-                catch (Exception ex) {
-                    MessageBox.Show("no se pudo editar los datos por: " + ex);
-                }
+                MostrarProductos();
+                limpiarForm();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("No se pudo guardar los datos por: " + ex.Message);
             }
         }
 
@@ -80,15 +76,19 @@ namespace CapaPresentacion
                 idProducto = dataGridView1.CurrentRow.Cells["Id"].Value.ToString();
             }
             else
-                MessageBox.Show("seleccione una fila por favor");
+            {
+                MessageBox.Show("Seleccione una fila por favor.");
+            }
         }
 
-        private void limpiarForm() {
+        private void limpiarForm()
+        {
             txtDesc.Clear();
-            txtMarca.Text = "";
+            txtMarca.Clear();
             txtPrecio.Clear();
             txtStock.Clear();
             txtNombre.Clear();
+            idProducto = null; // Asegúrate de limpiar también el idProducto
         }
 
         private void btnEliminar_Click(object sender, EventArgs e)
@@ -96,13 +96,39 @@ namespace CapaPresentacion
             if (dataGridView1.SelectedRows.Count > 0)
             {
                 idProducto = dataGridView1.CurrentRow.Cells["Id"].Value.ToString();
-                objetoCN.EliminarPRod(idProducto);
-                MessageBox.Show("Eliminado correctamente");
-                    MostrarProdctos();
+                try
+                {
+                    objetoCN.EliminarProd(idProducto);
+                    MessageBox.Show("Eliminado correctamente.");
+                    MostrarProductos();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("No se pudo eliminar el producto por: " + ex.Message);
+                }
             }
             else
-                MessageBox.Show("seleccione una fila por favor");
+            {
+                MessageBox.Show("Seleccione una fila por favor.");
+            }
+        }
+
+        private void txtBuscar_TextChanged(object sender, EventArgs e)
+        {
+            filtrar();
+        }
+        private void filtrar()
+        {
+            objetoCN = new CN_Productos();
+            string nombre = txtBuscar.Text;
+            dataGridView1.DataSource = objetoCN.BuscarPorNombre(nombre);
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
 
         }
     }
 }
+
+

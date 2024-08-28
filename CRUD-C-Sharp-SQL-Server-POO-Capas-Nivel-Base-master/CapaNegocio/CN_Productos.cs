@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
-using System.Data.SqlClient;
 using CapaDatos;
 
 namespace CapaNegocio
@@ -13,26 +8,32 @@ namespace CapaNegocio
     {
         private CD_Productos objetoCD = new CD_Productos();
 
-        public DataTable MostrarProd() {
-
+        public DataTable MostrarProd()
+        {
             DataTable tabla = new DataTable();
             tabla = objetoCD.Mostrar();
             return tabla;
         }
-        public void InsertarPRod ( string nombre,string desc,string marca,string precio, string stock){
 
-            objetoCD.Insertar(nombre,desc,marca,Convert.ToDouble(precio),Convert.ToInt32(stock));
-    }
-
-        public void EditarProd(string nombre, string desc, string marca, string precio, string stock,string id)
+        public void InsertarProd(string nombre, string desc, string marca, string precio, string stock)
         {
-            objetoCD.Editar(nombre, desc, marca, Convert.ToDouble(precio), Convert.ToInt32(stock),Convert.ToInt32(id));
+            objetoCD.Insertar(nombre, desc, marca, Convert.ToDouble(precio), Convert.ToInt32(stock));
         }
 
-        public void EliminarPRod(string id) {
+        public void EditarProd(string nombre, string desc, string marca, string precio, string stock, string id)
+        {
+            objetoCD.Editar(nombre, desc, marca, Convert.ToDouble(precio), Convert.ToInt32(stock), Convert.ToInt32(id));
+        }
 
+        public void EliminarProd(string id)
+        {
             objetoCD.Eliminar(Convert.ToInt32(id));
         }
 
+        // Método para buscar productos por nombre
+        public DataTable BuscarPorNombre(string nombre)
+        {
+            return objetoCD.Buscar(nombre);
+        }
     }
 }
